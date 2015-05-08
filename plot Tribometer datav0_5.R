@@ -1,11 +1,11 @@
 # Use direct data from tribometer
 # Delete all lines till header data. Change Friction Force to FrictionForce and delete [m] and [N]
 setwd("D:/Dropbox/Dosyalar/Doktora/EN MAkale") # change working directory
-MovAv <_ function(data){
-  flt1 <- rep(1/100,100)
-  ylag <- filter(data1a$FrictionForce, flt1, sides=1) #sides=1 for average of current sample and 99 previous samples sides=2 for average of 50 future and 50 past samples
-  xlag <- filter(data1a$Distance,flt1, sides=1)
-}
+#MovAv <_ function(data){
+#  flt1 <- rep(1/100,100)
+#  ylag <- filter(data1a$FrictionForce, flt1, sides=1) #sides=1 for average of current sample and 99 previous samples sides=2 for average of 50 future and 50 past samples
+#  xlag <- filter(data1a$Distance,flt1, sides=1)
+# }
 
 temp = list.files(pattern="*.csv")
 #tmep2 <- rep(NA,length(temp))
