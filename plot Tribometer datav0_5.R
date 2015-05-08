@@ -30,12 +30,12 @@ xlag <- filter(data1a$Distance,flt1, sides=1)
 # ylag <- filter(data1a$FrictionForce, flt2, sides=2)
 # xlag <- filter(data1a$Distance,flt2, sides=2)
 
-points(xlag,ylag, col='red',pch='.')  # Plot first data
+points(xlag,ylag, col='blue',pch='.')  # Plot first data
 
 # Get second data points
 ylag <- filter(data2a$FrictionForce, flt1, sides=1) 
 xlag <- filter(data2a$Distance,flt1, sides=1)
-points(xlag,ylag, col='green',pch='.') # Plot second data
+points(xlag,ylag, col='red',pch='.') # Plot second data
 
 # Copy paste lines 36-38  and change variable names as needed
 
