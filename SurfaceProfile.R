@@ -1,5 +1,5 @@
 
-setwd("D:/Dropbox/Dosyalar/Doktora/EN MAkale/asinma") # change working directory
+setwd("D:/") # change working directory
 #import
 # All files should be csv
 # Header should be Distance and Profile
