@@ -2,7 +2,7 @@
 # Manual cleaning of files:
 # Delete all lines till header data. Change Friction Force to FrictionForce and delete [m] and [N] Change data name to start with a letter not a number.
 # Put all files into Work directory
-
+library(zoo)
 setwd("D:/Work") # change working directory. Don't forget to put your own working directory here
 #MovAv <_ function(data){
 #  flt1 <- rep(1/100,100)
