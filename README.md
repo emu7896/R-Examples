@@ -10,3 +10,4 @@ I have a csv file that has tribometer data in it. This script imports csv files 
 ## Surface Profile
 
 This script gets surface profile data and finds peaks and calculates wear area. Imports and calculates area and plots for all *.csv files in working directory.
+A sample report created using SurfaceProfile.R script is given at [Wear_Track_Analysis.pdf](https://github.com/gokcemay/R-Examples/blob/master/Wear_Track_Analysis.pdf), source file for that report is given as [Wear Track Analysis.Rmd](https://github.com/gokcemay/R-Examples/blob/master/Wear%20Track%20Analysis.Rmd)
