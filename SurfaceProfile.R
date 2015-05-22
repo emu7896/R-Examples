@@ -40,8 +40,8 @@ PMax1<- match(Max1,All[[i]]$Profile)                # Get positon of maximum val
 
 
 # Getting maximum value near filterd maximum value 
-# Check for PMaxF1-PMax1 if it's 50 points near use that value for Maximum
-while (PMaxF1-PMax1>50) {
+# Check for PMaxF1-PMax1 if it's 0.03mm near use that value for Maximum
+while (All[[i]]$Distance[PMaxF1]-All[[i]]$Distance[PMax1]>0.03) {
   PMax1<-PMax1+1;
   Max1 <-max(All[[i]]$Profile[PMax1:PMinF],na.rm=TRUE);
   PMax1<- match(Max1,All[[i]]$Profile[PMax1:PMinF])+PMax1}
@@ -57,7 +57,7 @@ PMax2<- match(Max2,All[[i]]$Profile[PMinF:EndV])+PMinF                # Get posi
 
 
 # Getting maximum value near filterd maximum value 
-# Check for PMaxF1-PMax1 if it's 50 points near use that value for Maximum
+# Check for PMax2-PMaxF2 if it's 0.03mm near use that value for Maximum
 while (All[[i]]$Distance[PMax2]-All[[i]]$Distance[PMaxF2]>0.03) {
   PMax2<-PMax2+1;
   Max2 <-max(All[[i]]$Profile[PMinF:PMax2],na.rm=TRUE);
