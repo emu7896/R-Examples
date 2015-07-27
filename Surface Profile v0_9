@@ -1,0 +1,127 @@
+library(zoo)
+setwd("C:/Users/Gokce/Dropbox/Dosyalar/Doktora/asinma/toplu/Profile") # change working directory
+#import
+# All files should be csv
+# Header should be Distance and Profile
+# Seperation is , and text is ""
+# Sample File 
+# "Distance","Profile"
+# "0,00050","-0,08"
+# "0,00100","-0,09"
+
+
+filenames <- list.files(pattern="*.csv")  
+All <- lapply(filenames,function(i){
+  read.csv(i, sep = ",",quote = "\"", dec = ",", fill = TRUE, comment.char = "")
+
+}) #Get all data into a List named All. If your csv file is different changing read.csv options you can change import options
+l_All<-length(All)
+PosProfile <- data.frame(P1 = numeric(l_All),P2 = numeric(l_All))         #Wear Track dataframe for plot
+NicePosProfile <-data.frame(P1 = numeric(l_All),P2 = numeric(l_All))      #Averaged out
+WTArea <- matrix(,nrow = 1, ncol=l_All)         #Wear Track matrix for plot
+WTAreaD <- as.data.frame(setNames(replicate(l_All,numeric(0), simplify = F), substr(filenames, start = 1, stop = 2)))
+# Main Loop for multiple Files
+
+for (i in 1: length(filenames)){
+EndV<-length(All[[i]]$Profile)-1        # Set End point
+plot(All[[i]]$Distance, All[[i]]$Profile,pch='.',xlab='Distance mm',ylab='Profil µm') # Plot Full Data
+legend("topright", substr(filenames[i], start = 1, stop = 2),cex=.5)    # Add filename legend
+
+#Apply filter to data in order to eliminate noise Filter is moving average with 100 elements
+fltN <- 100 #lag
+flt1 <- rep(1/fltN,fltN)   # Filter
+ProfileFiltered<- filter(All[[i]]$Profile,flt1,sides=1) #filter profile
+points(filter(All[[i]]$Distance,flt1,sides=1),filter(All[[i]]$Profile,flt1,sides=1),col='blue',pch='.')
+MinF <- min(ProfileFiltered,na.rm=TRUE)   #Find filtered min
+PMinF <- match(MinF,ProfileFiltered)      # Get position of filtered min
+
+RL <-PMinF-500 # Left Range
+L_RangeF <-
+  
+# Get left maximum from minimum
+MaxF1 <-max(ProfileFiltered[RL:PMinF],na.rm=TRUE)  # Find max value on filtered
+PMaxF1 <- match(MaxF1,ProfileFiltered[RL:PMinF])+RL  #Find position of maximum value in filtered vector
+
+Max1<-max(All[[i]]$Profile[RL:PMinF],na.rm=TRUE)      #Find maximum value on actual
+PMax1 <- match(Max1,All[[i]]$Profile[RL:PMinF])+RL
+
+
+PosProfile$P1[i]<-PMax1
+
+# Getting maximum value near filterd maximum value 
+# Check for PMaxF1-PMax1 if it's 0.03 near use that value for Maximum
+
+while (All[[i]]$Distance[PMaxF1]-All[[i]]$Distance[PMax1]>0.03) {
+  PMax1<-PMax1+1;
+  Max1 <-max(All[[i]]$Profile[PMax1:PMinF],na.rm=TRUE);
+  PMax1<- match(Max1,All[[i]]$Profile[PMax1:PMinF])+PMax1}
+points(All[[i]]$Distance[PMax1],All[[i]]$Profile[PMax1],col='red')
+
+# Get right maximum from minimum
+RR<- PMinF+400 #Right Range
+MaxF2 <-max(ProfileFiltered[PMinF:RR])  # ,na.rm=TRUE Find max value on filtered
+
+PMaxF2 <- match(MaxF2,ProfileFiltered[PMinF:RR])+PMinF  #Find position of maximum value in filtered vector
+
+
+Max2<-max(All[[i]]$Profile[PMinF:RR],na.rm=TRUE)      #Find maximum value on actual
+PMax2<- match(Max2,All[[i]]$Profile[PMinF:RR])+PMinF                # Get positon of maximum value on actual
+PosProfile$P2[i]<-PMax2
+
+
+# Getting maximum value near filterd maximum value 
+# Check for PMaxF1-PMax1 if it's 0.03 near use that value for Maximum
+while (All[[i]]$Distance[PMax2]-All[[i]]$Distance[PMaxF2]>0.03) {
+  PMax2<-PMax2+1;
+  Max2 <-max(All[[i]]$Profile[PMinF:PMax2],na.rm=TRUE);
+  PMax2<- match(Max2,All[[i]]$Profile[PMinF:PMax2])+PMinF
+
+}
+points(All[[i]]$Distance[PMax2],All[[i]]$Profile[PMax2],col='red')
+
+
+plot(All[[i]]$Distance[PMax1:PMax2], All[[i]]$Profile[PMax1:PMax2],pch='.', xlab='Distance (mm)',ylab='Yükseklik (um)')
+polygon(All[[i]]$Distance[PMax1:PMax2],All[[i]]$Profile[PMax1:PMax2],col="green")
+
+Min<-min(All[[i]]$Profile[PMax1:PMax2])      #Find minimum value of curve
+AUCc <- sum(diff(All[[i]]$Distance[PMax1:PMax2])*rollmean(All[[i]]$Profile[PMax1:PMax2]-Min,2))     #Calculate area under curve to 0 use min to have all values greater than zero
+
+xL <- c(All[[i]]$Distance[PMax1],All[[i]]$Distance[PMax2])   # A vector with start and end values for x
+yL <- c(All[[i]]$Profile[PMax1],All[[i]]$Profile[PMax2])     # A vector with start and end values for y
+AUCl <- sum(diff(xL)*rollmean(yL-Min,2))                  #Calculate area under line
+AUC <- (AUCl-AUCc)/1000                                         #Calculate area between in mm
+
+
+colnames(WTArea)<-substr(filenames, start = 1, stop = 2)
+WTArea[1,i]<- AUC
+WTAreaD[1,i] <- AUC
+legend(All[[i]]$Distance[(PMax2-PMax1)/2+PMax1],All[[i]]$Profile[PMax1/2],legend=c("Area (mm)",AUC), cex=.5)    #Write value
+legend("bottomright", legend=substr(filenames[i], start = 1, stop = 2),cex=.5)
+
+
+}
+
+
+WTVol <- WTArea*0.000000047169932*1000-0.00000000031703895 # Wear Track Formula
+barplot(t(as.matrix(WTVol)), beside = TRUE, main = "Wear Track Volume", xlab = "Sample", ylab = "Volume (mm3)",col=c(1:l_All), ylim = range(0,0.000000006),names.arg = colnames(WTVol) )
+
+for (i in 1: length(filenames)){
+  text(i+0.5,WTVol[1,i]*1.3,signif(WTVol[1,i],4))
+}
+
+Nicer <-mean(All[[1]]$Distance[PosProfile$P1]+All[[1]]$Distance[PosProfile$P2])
+
+plot(1,xlab='Distance (mm)',ylab='Profile (µm)',xlim=c(Nicer/2-0.2,Nicer/2+0.2),ylim=c(-2,0.5),type = "l")  # 
+
+for (i in 1: length(filenames)){
+  Avg<-(All[[1]]$Distance[PosProfile[i,1]]+All[[1]]$Distance[PosProfile[i,2]])/2
+  Nicer2<-Nicer/2-Avg
+  
+  lines(All[[i]]$Distance[PosProfile[i,1]:PosProfile[i,2]]+Nicer2, All[[i]]$Profile[PosProfile[i,1]:PosProfile[i,2]]-max(All[[i]]$Profile[PosProfile[i,1]:PosProfile[i,2]]),col=i, pch='.',xlab='Distance mm',ylab='Profile µm') # Plot Full Data
+  
+  points(All[[i]]$Distance[PosProfile[i,1]:PosProfile[i,2]]+Nicer2, All[[i]]$Profile[PosProfile[i,1]:PosProfile[i,2]]-max(All[[i]]$Profile[PosProfile[i,1]:PosProfile[i,2]]),col=i, pch='.',xlab='Distance mm',ylab='Profile µm') # Plot Full Data
+  points(All[[i]]$Distance[PosProfile[i,2]]+Nicer2, All[[i]]$Profile[PosProfile[i,2]]-max(All[[i]]$Profile[PosProfile[i,1]:PosProfile[i,2]]),col=i, pch=i,xlab='Distance mm',ylab='Profile µm') # Plot last point for black and white
+  }
+
+legend("topright", legend= substr(filenames, start = 1, stop = 2),col=c(1:l_All),pch=c(1:l_All),cex=.5)    # Add filename legend
+
