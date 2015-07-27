@@ -1,0 +1,57 @@
+# Use direct data from tribometer
+# Delete all lines till header data. Change Friction Force to FrictionForce and delete [m] and [N]
+setwd("C:/Ball-on-disk") # change working directory
+
+#Get all files in a list named All
+filenames <- list.files(pattern="*.csv")  
+All <- lapply(filenames,function(i){
+  read.csv(i, sep = "",quote = "\"", dec = ",", fill = TRUE, comment.char = "")
+})
+l_All <- length(All)
+
+#Coefficient of friction
+CF <- vector(mode = "numeric")     #generate vector for values
+for (i in 1:l_All){
+  CF[i]<-mean(All[[i]]$µ)
+}             #get all coefficient of friction data into CF
+names(CF)<-substr(filenames,start=1,stop=2)      #set column names
+
+barplot(CF,main="Average Friction Coefficient", 
+        xlab="Samples",ylab="µ",ylim = c(0,0.6),col=c(1:l_All))
+text(0.7,0.45,signif(CF[1],6))
+text(1.9,0.45,signif(CF[2],6))
+text(3,0.42,signif(CF[3],6))
+text(4.4,0.52,signif(CF[4],6))
+text(5.5,0.50,signif(CF[5],6))
+text(6.7,0.42,signif(CF[6],6))
+text(7.9,0.45,signif(CF[7],6))
+
+#####
+#Friction Force
+
+fltN <- 100
+flt1 <- rep(1/fltN,fltN)
+flt2 <- rep(1/(fltN+1),fltN+1)
+
+#All
+plot(100,xlab='Distance (m)',ylab = 'Friction Force (N)',xlim=c(0,85),ylim=c(0,2))
+
+for (i in 1:l_All){
+  
+  points(filter(All[[i]]$Distance,flt1, sides=1),filter(All[[i]]$FrictionForce, flt1, sides=1),pch='.',col=i)
+  points(filter(All[[i]]$Distance,flt1, sides=1)[length(filter(All[[i]]$Distance,flt1, sides=1))],filter(All[[i]]$FrictionForce, flt1, sides=1)[length(filter(All[[i]]$FrictionForce, flt1, sides=1))],pch=i,col=i,cex=1)  #Added last points for black and white
+  
+} 
+legend("topright", legend= substr(filenames, start = 1, stop = 2),col=c(1:l_All),pch=c(1:l_All),cex=.5) 
+
+#Plot each alone
+for (i in 1:l_All){
+  
+  plot(filter(All[[i]]$Distance,flt1, sides=1),filter(All[[i]]$FrictionForce, flt1, sides=1),pch='.',col=i,xlab='Distance (m)',ylab = 'Friction Force (N)',xlim=c(0,85),ylim=c(0,2))
+  legend("topright", legend= substr(filenames[i], start = 1, stop = 2),col=c(1:l_All),pch=16,cex=.5) 
+  
+  } 
+
+
+
+#Standard Deviation bu versiyondan çıkartıldı
