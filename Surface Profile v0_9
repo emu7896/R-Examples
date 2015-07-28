@@ -101,8 +101,8 @@ legend("bottomright", legend=substr(filenames[i], start = 1, stop = 2),cex=.5)
 
 }
 
-
-WTVol <- WTArea*0.000000047169932*1000-0.00000000031703895 # Wear Track Formula
+r<- 3 #mm diameter 
+WTVol <- WTArea*pi*r # Wear Track Formula
 barplot(t(as.matrix(WTVol)), beside = TRUE, main = "Wear Track Volume", xlab = "Sample", ylab = "Volume (mm3)",col=c(1:l_All), ylim = range(0,0.000000006),names.arg = colnames(WTVol) )
 
 for (i in 1: length(filenames)){
